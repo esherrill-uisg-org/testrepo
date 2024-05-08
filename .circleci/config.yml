@@ -1,28 +1,39 @@
+# This config was automatically generated from your source code
+# Stacks detected: cicd:github-actions:.github/workflows,deps:python:.,package_manager:pipenv:.
 version: 2.1
-executors:
-  default_image:
-    docker:
-    - image: cimg/base:current
+orbs:
+  python: circleci/python@2
 jobs:
-  analysis:
-    executor: default_image
+  test-python:
+    # Install dependencies and run tests
+    docker:
+      - image: cimg/python:3.12-node
     steps:
-    - checkout
-    - store_artifacts:
-        path: results.sarif
+      - checkout
+      - python/install-packages:
+          args: --dev
+          pkg-manager: pipenv
+      - run:
+          name: Run tests
+          command: pipenv run pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
+      - store_test_results:
+          path: junit.xml
+  deploy:
+    # This is an example deploy job, not actually used by the workflow
+    docker:
+      - image: cimg/base:stable
+    steps:
+      # Replace this with steps to deploy to users
+      - run:
+          name: deploy
+          command: '#e.g. ./deploy.sh'
+      - run:
+          name: found github actions config
+          command: ':'
 workflows:
-  Scorecard_supply-chain_security:
+  build-and-test:
     jobs:
-    - analysis:
-        filters:
-          branches:
-            only:
-            - main
-          tags: {}
-# Translated via CircleCI's Configuration Translator
-# Info :: Could not translate "branch_protection_rule" trigger event to an equivalent in CircleCI's config.yml. See CircleCI's configuration reference to see if there are alternative approaches for this event https://circleci.com/docs/configuration-reference/
-# Info :: Could not translate "schedule" trigger event to an equivalent in CircleCI's config.yml.  To schedule a pipeline, see the following documentation https://circleci.com/docs/scheduled-pipelines/
-# Info :: Could not translate "permissions"
-# Info :: Could not translate "ossf/scorecard-action@e38b1902ae4f44df626f11ba0734b14fb91f8f86" in workflow "Scorecard supply-chain security", in job "analysis"
-# Info :: Could not translate "github/codeql-action/upload-sarif@17573ee1cc1b9d061760f3a006fc4aac4f944fd5" in workflow "Scorecard supply-chain security", in job "analysis"
-# Info :: Could not translate "permissions" in workflow "Scorecard supply-chain security", in job "analysis"
+      - test-python
+    # - deploy:
+    #     requires:
+    #       - test-python
