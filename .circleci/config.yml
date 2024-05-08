@@ -1,1 +1,28 @@
----
+version: 2.1
+executors:
+  default_image:
+    docker:
+    - image: cimg/base:current
+jobs:
+  analysis:
+    executor: default_image
+    steps:
+    - checkout
+    - store_artifacts:
+        path: results.sarif
+workflows:
+  Scorecard_supply-chain_security:
+    jobs:
+    - analysis:
+        filters:
+          branches:
+            only:
+            - main
+          tags: {}
+# Translated via CircleCI's Configuration Translator
+# Info :: Could not translate "branch_protection_rule" trigger event to an equivalent in CircleCI's config.yml. See CircleCI's configuration reference to see if there are alternative approaches for this event https://circleci.com/docs/configuration-reference/
+# Info :: Could not translate "schedule" trigger event to an equivalent in CircleCI's config.yml.  To schedule a pipeline, see the following documentation https://circleci.com/docs/scheduled-pipelines/
+# Info :: Could not translate "permissions"
+# Info :: Could not translate "ossf/scorecard-action@e38b1902ae4f44df626f11ba0734b14fb91f8f86" in workflow "Scorecard supply-chain security", in job "analysis"
+# Info :: Could not translate "github/codeql-action/upload-sarif@17573ee1cc1b9d061760f3a006fc4aac4f944fd5" in workflow "Scorecard supply-chain security", in job "analysis"
+# Info :: Could not translate "permissions" in workflow "Scorecard supply-chain security", in job "analysis"
